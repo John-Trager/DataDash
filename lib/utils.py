@@ -1,0 +1,25 @@
+import socket
+import time
+
+
+def check_internet_conn(host="8.8.8.8", port=53, timeout=3):
+    """
+    Host: 8.8.8.8 (google-public-dns-a.google.com)
+    OpenPort: 53/tcp
+    Service: domain (DNS/TCP)
+    """
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+        return True
+    except socket.error as ex:
+        print(ex)
+        return False
+
+
+class Timer:
+    def __init__(self) -> None:
+        self.start = time.time()
+
+    def elapsed(self) -> float:
+        return max(0, time.time() - self.start)

@@ -1,0 +1,8 @@
+.DS_STORE
+.vscode/
+__pycache__
+
+# private folders
+data
+data_tmp
+dst_data
