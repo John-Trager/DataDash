@@ -1,4 +1,4 @@
-# DashData
+# DataDash
 The goal of this project is to collect data from a cars dash cam and upload it to the cloud or remote storage once connected to wifi.
 
 
