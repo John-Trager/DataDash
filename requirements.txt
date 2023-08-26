@@ -1,2 +1,4 @@
 flask-dropzone
-flask
+Flask
+pyserial
+pynmea2

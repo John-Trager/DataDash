@@ -1,5 +1,14 @@
 import socket
 import time
+from math import radians, cos, sin, sqrt, asin
+
+
+class Timer:
+    def __init__(self) -> None:
+        self.start = time.time()
+
+    def elapsed(self) -> float:
+        return max(0, time.time() - self.start)
 
 
 def check_internet_conn(host="8.8.8.8", port=53, timeout=3):
@@ -17,9 +26,25 @@ def check_internet_conn(host="8.8.8.8", port=53, timeout=3):
         return False
 
 
-class Timer:
-    def __init__(self) -> None:
-        self.start = time.time()
+def get_distance(coord1: [float, float], coord2: [float, float]):
+    """
+    returns the distance in meters between two gps coordinate points
+    """
+    R = 6372.8
+    lat1, lon1 = coord1
+    lat2, lon2 = coord2
 
-    def elapsed(self) -> float:
-        return max(0, time.time() - self.start)
+    phi_1 = radians(lat1)
+    phi_2 = radians(lat2)
+
+    delta_phi = radians(lat2 - lat1)
+    delta_lambda = radians(lon2 - lon1)
+
+    a = (
+        sin(delta_phi / 2.0) ** 2
+        + cos(phi_1) * cos(phi_2) * sin(delta_lambda / 2.0) ** 2
+    )
+    # c = 2*atan2(sqrt(a),sqrt(1-a))
+    c = 2 * asin(sqrt(a))
+
+    return R * c * 1000
