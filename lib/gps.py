@@ -56,7 +56,7 @@ class GPS:
 
         num_sats = 0
         gps_qual = 0
-        while gps_qual != 2:  # only accept DGPS
+        while gps_qual != 2:  # gps_qual == 2 -> DGPS, 1 -> regular GPS
             try:
                 sentence = self.stream.readline().decode()
                 if sentence.find("GGA") > 0:
