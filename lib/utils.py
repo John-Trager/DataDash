@@ -1,6 +1,7 @@
 import socket
 import time
 from math import radians, cos, sin, sqrt, asin
+import numpy as np
 
 
 class Timer:
@@ -9,6 +10,22 @@ class Timer:
 
     def elapsed(self) -> float:
         return max(0, time.time() - self.start)
+
+
+class RollingVarianceCalculator:
+    def __init__(self, window_size: int):
+        self.window_size = window_size
+        self.data = []
+        self.variance = None
+
+    def update(self, new_value):
+        # TODO: make this more efficient, naive algo at the moment
+        self.data.append(new_value)
+        if len(self.data) > self.window_size:
+            self.data.pop(0)
+        if len(self.data) >= self.window_size:
+            window = np.array(self.data[-self.window_size :])
+            self.variance = np.var(window)
 
 
 def check_internet_conn(host="8.8.8.8", port=53, timeout=3):
