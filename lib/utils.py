@@ -5,6 +5,9 @@ import numpy as np
 
 
 class Timer:
+    """
+    A simple timer class that easly calculates elapsed time
+    """
     def __init__(self) -> None:
         self.start = time.time()
 
@@ -13,6 +16,12 @@ class Timer:
 
 
 class RollingVarianceCalculator:
+    """
+    Calculates the rolling variance based on a window size
+
+    Args:
+        window_size(int): how many data points to consider in the variance window
+    """
     def __init__(self, window_size: int):
         self.window_size = window_size
         self.data = []
@@ -41,27 +50,3 @@ def check_internet_conn(host="8.8.8.8", port=53, timeout=3):
     except socket.error as ex:
         print(ex)
         return False
-
-
-def get_distance(coord1: [float, float], coord2: [float, float]):
-    """
-    returns the distance in meters between two gps coordinate points
-    """
-    R = 6372.8
-    lat1, lon1 = coord1
-    lat2, lon2 = coord2
-
-    phi_1 = radians(lat1)
-    phi_2 = radians(lat2)
-
-    delta_phi = radians(lat2 - lat1)
-    delta_lambda = radians(lon2 - lon1)
-
-    a = (
-        sin(delta_phi / 2.0) ** 2
-        + cos(phi_1) * cos(phi_2) * sin(delta_lambda / 2.0) ** 2
-    )
-    # c = 2*atan2(sqrt(a),sqrt(1-a))
-    c = 2 * asin(sqrt(a))
-
-    return R * c * 1000

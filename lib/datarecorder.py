@@ -16,6 +16,15 @@ class DataRecorder:
         width: int,
         height: int,
     ) -> None:
+        """
+        Args:
+            data_path(str): where to put videos that are finished recording and ready for upload
+            tmp_path(str): where to store videos that are in progress of recording
+            video_p(int): port camera is on (usually 0)
+            framerate(int): camera framerate
+            width(int): width resolution of the camera
+            height(int): height resolution of the camera
+        """
         self.cam = Camera(video_p, framerate, width, height)
         self.tmp_path = tmp_path
         self.data_path = data_path

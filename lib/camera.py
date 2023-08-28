@@ -12,6 +12,13 @@ OFFSET = 0.85
 
 class Camera:
     def __init__(self, video_p: int, framerate: int, width: int, height: int) -> None:
+        """
+        Args:
+            video_p(int): port camera is on (usually 0)
+            framerate(int): camera framerate
+            width(int): width resolution of the camera
+            height(int): height resolution of the camera
+        """
         self.width = width
         self.height = height
         self.fps = framerate

@@ -29,6 +29,7 @@ class DataUploader:
         Initialize a new DataUploader instance.
 
         Args:
+            server_url(str): url of the video storage server
             src_data_path (str): path to files to be uploaded
             log_path (str): path to logs used by the DataUploader
             loop_time (str): how often we want the uploader to check for new files (in seconds)
