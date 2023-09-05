@@ -67,6 +67,7 @@ class MotionDetector:
 
             var = self.series_var.variance
             if var != None and var < self.threshold:
+                print(" 'no motion' event occurred!")
                 self.motion_event.set()
 
             sleep_time = max(0,(1.0 / self.sample_freq)-loop_timer.elapsed())

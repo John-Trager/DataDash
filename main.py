@@ -5,8 +5,11 @@ import time
 import threading
 
 if __name__ == "__main__":
-    recorder = DataRecorder("data", "data_tmp", 0, 30, 1280, 960)
-    uploader = DataUploader("http://localhost:8001/upload", "data", "logs", 5, 10, True)
+
+    recorder = DataRecorder("data", "data_tmp", 0, 60, 1920, 1080)
+    uploader = DataUploader(
+        "http://server1.local:8001/upload", "data", "logs", 5, 10, False
+    )
 
     # wait until no "motion" is detected
     still_motion_event = threading.Event()
@@ -22,4 +25,11 @@ if __name__ == "__main__":
 
     motionDetector.stop()
     recorder.stop()
+    print("waiting for uploader to stop...")
+    time.sleep(12)
     uploader.stop()
+
+    # TODO: maybe join on the other threads before this?
+    # or just note that they may still be running for a little bit
+    print("main program has finished (other threads may be finishing up)")
+

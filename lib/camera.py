@@ -7,7 +7,8 @@ import shutil
 import os
 
 # TODO: find the correct offset...
-OFFSET = 0.85
+# OFFSET = 0.85 # for logitech cam
+OFFSET = 0.25  # for oak-d cam
 
 
 class Camera:
@@ -53,7 +54,7 @@ class Camera:
     def recording(
         self, filename: str, temp_path: str, data_path: str, end_flag: threading.Event
     ) -> None:
-        print("start recording")
+        print("starting recording")
 
         # TODO: consider having a max time limit for a recording
         # where once it hits the limit it creates a new file
@@ -66,7 +67,8 @@ class Camera:
         # move file to this path once recording is completed
         data_file_path = os.path.join(data_path, filename)
 
-        print(temp_file_path, data_file_path)
+        print(f"temp filepath and name: {temp_file_path}")
+        print(f"final filepath and name: {data_file_path} (once recording has finished)")
 
         fourcc = cv.VideoWriter_fourcc(*"mp4v")
         out = cv.VideoWriter(

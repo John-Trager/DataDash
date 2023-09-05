@@ -4,3 +4,5 @@ pyserial
 pynmea2
 adafruit-circuitpython-mpu6050
 filterpy
+adafruit-blinka
+av
