@@ -1,0 +1,11 @@
+tmp/**
+data/**
+env/**
+explorations/**
+__pycache__/**
+server.json
+.DS_Store
+
+# file types to ignore
+*.pyc
+*.log

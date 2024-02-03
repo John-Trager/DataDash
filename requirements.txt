@@ -1,0 +1,2 @@
+paramiko
+opencv-python

@@ -1,0 +1,13 @@
+## DataDash System State
+- script that runs on startup
+    - :idle: sits in the idle state until motion is detected
+        - if in the idle state for longer than X minutes, save state and shutoff device
+        - once motion is detected GOTO :in-motion:
+    - :in-motion: once motion is detected record video
+        - once motion is no longer detected GOTO :wait-for-upload: 
+    - :wait-for-upload: try to connect to server to upload data
+        - if no connection is made to upload server for X minutes, save state and shutoff device
+        - once connection to server is established GOTO :upload-state:
+    - :upload-state: upload data to server
+        - once no more data to upload GOTO idle state
+        - if connection to server is broken GOTO :wait-for-upload:
