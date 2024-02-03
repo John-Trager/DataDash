@@ -1,7 +1,9 @@
-import paramiko
+from datetime import datetime
+import numpy as np
 import json
 import os
-from datetime import datetime
+import paramiko
+import time
 
 SERVER_HOST = "server1.local"
 
@@ -14,7 +16,7 @@ def server_reachable(hostname: str = SERVER_HOST) -> bool:
     return response == 0
 
 
-def get_server_conn(config_path: str = "server.json"):
+def get_server_conn(config_path: str = "config/server.json"):
     """
     Connect to the server using the details in config_path
 
@@ -44,8 +46,6 @@ def get_server_conn(config_path: str = "server.json"):
 
 
 ### More general util functions ###
-
-
 def get_string_time_now() -> str:
     """Returns the current time in string format"""
     now = datetime.now()
@@ -81,3 +81,34 @@ def log_debug(*args):
     timestamp = get_string_time_now()
     timestamp = f"\033[94m[{timestamp}] Debug:\033[0m"
     print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
+
+class Timer:
+    """
+    A simple timer class that easly calculates elapsed time
+    """
+    def __init__(self) -> None:
+        self.start = time.time()
+
+    def elapsed(self) -> float:
+        return max(0, time.time() - self.start)
+
+class RollingVarianceCalculator:
+    """
+    Calculates the rolling variance based on a window size
+
+    Args:
+        window_size(int): how many data points to consider in the variance window
+    """
+    def __init__(self, window_size: int):
+        self.window_size = window_size
+        self.data = []
+        self.variance = None
+
+    def update(self, new_value):
+        # TODO: make this more efficient, naive algo at the moment
+        self.data.append(new_value)
+        if len(self.data) > self.window_size:
+            self.data.pop(0)
+        if len(self.data) >= self.window_size:
+            window = np.array(self.data[-self.window_size :])
+            self.variance = np.var(window)

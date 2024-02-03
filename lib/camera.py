@@ -2,15 +2,12 @@
 a camera class for a USB connected camera
 """
 
+from lib.params import CAM_OFFSET
 from lib.utils import *
 import cv2 as cv
 import threading
 import shutil
 import os
-
-# TODO: find the correct offset...
-OFFSET = 0.85  # for logitech cam
-# OFFSET = 0.25  # for oak-d cam
 
 
 class Camera:
@@ -35,6 +32,10 @@ class Camera:
         self.record_thread = None
 
     def __del__(self) -> None:
+        self.stop_recording()
+        self.cap.release()
+
+    def release(self) -> None:
         self.stop_recording()
         self.cap.release()
 
@@ -79,7 +80,7 @@ class Camera:
         out = cv.VideoWriter(
             temp_file_path,
             fourcc,
-            OFFSET * self.fps,
+            CAM_OFFSET * self.fps,
             (self.width, self.height),
         )
 

@@ -1,2 +1,8 @@
 paramiko
 opencv-python
+pyserial
+pynmea2
+adafruit-circuitpython-mpu6050
+adafruit-blinka
+tqdm
+numpy

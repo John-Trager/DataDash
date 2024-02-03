@@ -47,3 +47,6 @@ class DataRecorder:
         '''Stops recording data'''
         # update
         self.cam.stop_recording()
+
+    def release(self):
+        self.cam.release()
