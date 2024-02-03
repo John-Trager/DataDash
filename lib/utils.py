@@ -1,3 +1,4 @@
+from lib.params import DEBUG
 from datetime import datetime
 import numpy as np
 import json
@@ -32,17 +33,15 @@ def get_server_conn(config_path: str = "config/server.json"):
     config = {}
     with open(config_path) as f:
         config = json.load(f)
-    try:
-        client = paramiko.SSHClient()
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(
-            config["hostname"], config["port"], config["username"], config["password"]
-        )
-        log("Connected to server")
-        return client
-    except Exception as e:
-        log_error("could not connect to server:", e)
-        exit(1)
+
+    client = paramiko.SSHClient()
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    client.connect(
+        config["hostname"], config["port"], config["username"], config["password"]
+    )
+    log("Connected to server")
+    return client
+
 
 
 ### More general util functions ###
@@ -78,9 +77,10 @@ def log_error(*args):
 def log_debug(*args):
     """Logs a debug message to the console with timestamp"""
     # color the timestamp blue
-    timestamp = get_string_time_now()
-    timestamp = f"\033[94m[{timestamp}] Debug:\033[0m"
-    print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
+    if DEBUG:
+        timestamp = get_string_time_now()
+        timestamp = f"\033[94m[{timestamp}] Debug:\033[0m"
+        print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
 
 class Timer:
     """
@@ -106,9 +106,15 @@ class RollingVarianceCalculator:
 
     def update(self, new_value):
         # TODO: make this more efficient, naive algo at the moment
+        # since var is calculated every update in full there may be a better method
         self.data.append(new_value)
         if len(self.data) > self.window_size:
             self.data.pop(0)
         if len(self.data) >= self.window_size:
             window = np.array(self.data[-self.window_size :])
             self.variance = np.var(window)
+
+    def reset(self):
+        '''resets the RVCs buffer'''
+        self.variance = None
+        self.data = []

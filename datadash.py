@@ -17,13 +17,27 @@ class DataDash:
         idle_timeout: int = 30,
         server_timeout: int = 30,
     ) -> None:
-        self.idle_timeout = idle_timeout
-        self.state = State.IDLE  # initial state
-        self.queue = Queue()
+        """
+        DataDash object and state machine 
 
-        self.motion_detector = MotionDetector(10, 5, 0.1, 0.5, self.queue)
+        Args:
+            data_dir(str): path to dir where data will be stored before being uploaded
+            remote_dir(str): path to dir on remote server where data will be stored
+            idle_timeout(int): idle timeout in seconds, if timeout occurs will shutdown
+            server_timeout(int): server timeout in seconds, 
+                how long will try to connect to server before giving up
+        """
+        self.idle_timeout = idle_timeout
+        self.server_timeout = server_timeout
+        self.state = State.IDLE  # initial state
+        self.queue = Queue() # queue only used by md
+
         self.recorder = DataRecorder(data_dir, "tmp", 0, 30, 1280, 960)
         self.uploader = Uploader(data_dir, remote_dir)
+
+        # intialize last
+        self.motion_detector = MotionDetector(10, 5, 0.1, 0.5, self.queue)
+        log_debug("*** DataDash intialized ***")
 
     def idle(self) -> State:
         log("idle")
@@ -56,6 +70,8 @@ class DataDash:
 
         # wait for idle message from detector
         # TODO: consider adding timeout
+        # TODO: consider adding md heartbeat or fail-safe
+        # because if the sensor fails we will record forever
         try:
             sender, message = self.queue.get()
             log(f"recv message: {sender}, {message}")
@@ -71,36 +87,49 @@ class DataDash:
             log_error(f"Invalid message: {message}")
             self.state = State.DONE
 
+        # on in_motion exit
         self.recorder.stop()
-        
-        # once we can clear the queue
-        #self.motion_detector.stop()
+        self.motion_detector.stop()
 
         return self.state
 
     def wait_for_upload(self) -> State:
         log("wait for upload")
 
-        reachable = server_reachable()
+        start = Timer()
 
-        if reachable:
-            self.state = State.UPLOAD_STATE
-        else:
-            # TODO: consider adding a retry if we don't
-            # ping successfully the first time
-            self.state = State.DONE
+        # try to re-connect 1/sec until timeout
+        while start.elapsed() < self.server_timeout:
+            reachable = server_reachable()
+
+            if reachable:
+                self.state = State.UPLOAD_STATE
+                return self.state
+
+            time.sleep(1)
+
+        self.state = State.IDLE
+        log_warn("failed to connect to server, going to IDLE")
 
         return self.state
 
     def upload(self) -> State:
         log("upload state")
+        result = None
 
-        all_uploaded = self.uploader.upload()
+        try:
+            result = self.uploader.upload()
+        except Exception as e:
+            log_error(e)
+            self.state = State.DONE
+            return self.state
 
-        if not all_uploaded:
-            self.state = State.WAIT_FOR_UPLOAD
-        else:
+        if result:
             self.state = State.IDLE
+        else:
+            self.state = State.WAIT_FOR_UPLOAD
+
+        return self.state
 
     def done(self) -> None:
         log("done")

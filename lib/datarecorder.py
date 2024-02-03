@@ -3,6 +3,7 @@ This is the data recorder service
 
 Currently handles recording video data from a connected camera
 """
+from lib.utils import log_debug
 from lib.camera import Camera
 from datetime import datetime
 from pathlib import Path
@@ -34,6 +35,9 @@ class DataRecorder:
         # create directories if they don't exist yet
         Path(tmp_path).mkdir(parents=True, exist_ok=True)
         Path(data_path).mkdir(parents=True, exist_ok=True)
+
+        log_debug("DataRecorder intialized")
+
 
     def start(self):
         '''Starts recording data'''

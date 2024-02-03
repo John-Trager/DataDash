@@ -1,4 +1,4 @@
-from utils import log, get_string_time_now
+from utils import log, log_warn, get_string_time_now
 from params import IMU_OFFSET_FILE
 import adafruit_mpu6050
 import board
@@ -10,6 +10,8 @@ from tqdm import tqdm
 GRAVITY_CONST = 9.80665
 
 if __name__ == '__main__':
+    log_warn("IMPORTANT! MAKE SURE DEVICE IS STILL AND " \
+             "LEVEL DURING THE DURATION OF THIS SCRIPT")
     i2c = busio.I2C(board.SCL, board.SDA)
     mpu = adafruit_mpu6050.MPU6050(i2c)
 

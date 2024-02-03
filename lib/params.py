@@ -12,5 +12,5 @@ CAM_OFFSET = 0.85  # for logitech cam
 
 IMU_OFFSET_FILE = "config/imu_offsets.json"
 
-# motion detector verbose setting
-MD_VERBOSE = True
+# will log debug prints
+DEBUG = True

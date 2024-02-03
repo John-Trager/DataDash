@@ -28,12 +28,15 @@ class Camera:
         self.cap.set(cv.CAP_PROP_FRAME_WIDTH, width)  # 1280
         self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, height)  # 960
 
+        if not self.cap.isOpened():
+            raise RuntimeError("Error: Unable to open Camera. " \
+                               f"Is it plugged in and connected on the video port: {video_p}?")
+
         self.end_flag = threading.Event()
         self.record_thread = None
 
-    def __del__(self) -> None:
-        self.stop_recording()
-        self.cap.release()
+        log_debug("Camera intialized")
+
 
     def release(self) -> None:
         self.stop_recording()
