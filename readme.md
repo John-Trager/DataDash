@@ -20,7 +20,8 @@ I have also experimented with a simple GPS module that I had but due to its long
 - [ ] Collecting additional vehicle data (speed, rpm, location)
 
 ## DataDash System State
-> [!Note] this is still being built out
+> [!Note]
+> this is still being built out
 
 - script that runs on startup
     - :idle: sits in the idle state until motion is detected
