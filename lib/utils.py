@@ -1,4 +1,4 @@
-from params import DEBUG
+from lib.params import DEBUG
 from collections import deque
 from datetime import datetime
 from math import sqrt

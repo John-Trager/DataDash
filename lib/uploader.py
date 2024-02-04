@@ -22,8 +22,6 @@ class Uploader:
         uploads all files in the data_dir directory that have not been uploaded yet
         :return: True if all files were uploaded, False otherwise
         '''
-        # TODO: handle case where client uploader disconnects
-        # before all files are uploaded
 
         # if all files were uploaded
         result = True

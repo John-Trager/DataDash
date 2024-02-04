@@ -16,7 +16,7 @@ class DataDash:
         self,
         data_dir: str = "data",
         remote_dir: str = "data",
-        idle_timeout: int = 30,
+        idle_timeout: int = 60,
         server_timeout: int = 30,
     ) -> None:
         """
@@ -38,7 +38,7 @@ class DataDash:
         self.uploader = Uploader(data_dir, remote_dir)
 
         # intialize last
-        self.motion_detector = MotionDetector(30, 10, 0.028, 0.3, self.queue)
+        self.motion_detector = MotionDetector(30, 10, 0.05, 0.3, self.queue)
         log_debug("*** DataDash intialized ***")
 
     def idle(self) -> State:
