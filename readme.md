@@ -40,3 +40,9 @@ I have also experimented with a simple GPS module that I had but due to its long
     - :done: the end state for the device 
 
 [//]: # (TODO: create state diagram somehow)
+
+
+## Dev Info
+
+- https://www.thequantizer.com/access-raspberry-pi-remotely/#gadget-mode-ssh-over-usb
+    - gadget mode for raspi so we can access from computer in the field when no networks are around

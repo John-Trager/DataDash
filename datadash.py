@@ -1,12 +1,14 @@
 """
 
 """
+
 from lib.motiondetector import MotionDetector
 from lib.state import State
 from lib.utils import *
 from lib.datarecorder import DataRecorder
 from lib.uploader import Uploader
 from queue import Empty, Queue
+
 
 class DataDash:
 
@@ -18,25 +20,25 @@ class DataDash:
         server_timeout: int = 30,
     ) -> None:
         """
-        DataDash object and state machine 
+        DataDash object and state machine
 
         Args:
             data_dir(str): path to dir where data will be stored before being uploaded
             remote_dir(str): path to dir on remote server where data will be stored
             idle_timeout(int): idle timeout in seconds, if timeout occurs will shutdown
-            server_timeout(int): server timeout in seconds, 
+            server_timeout(int): server timeout in seconds,
                 how long will try to connect to server before giving up
         """
         self.idle_timeout = idle_timeout
         self.server_timeout = server_timeout
         self.state = State.IDLE  # initial state
-        self.queue = Queue() # queue only used by md
+        self.queue = Queue()  # queue only used by md
 
         self.recorder = DataRecorder(data_dir, "tmp", 0, 30, 1280, 960)
         self.uploader = Uploader(data_dir, remote_dir)
 
         # intialize last
-        self.motion_detector = MotionDetector(10, 5, 0.1, 0.5, self.queue)
+        self.motion_detector = MotionDetector(30, 10, 0.028, 0.3, self.queue)
         log_debug("*** DataDash intialized ***")
 
     def idle(self) -> State:
@@ -136,6 +138,7 @@ class DataDash:
         self.motion_detector.release()
         self.recorder.release()
         log("released devices")
+
 
 if __name__ == "__main__":
     dd = DataDash()

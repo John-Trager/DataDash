@@ -9,3 +9,4 @@ server.json
 # file types to ignore
 *.pyc
 *.log
+*.csv

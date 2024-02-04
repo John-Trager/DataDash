@@ -1,4 +1,4 @@
-from lib.utils import RollingVarianceCalculator, Timer, log_debug
+from lib.utils import SMAVariance, Timer, log_debug
 from lib.params import IMU_OFFSET_FILE
 from lib.state import State
 import adafruit_mpu6050
@@ -11,13 +11,23 @@ from queue import Queue
 import threading
 import time
 
+
 class MotionDetector:
-    def __init__(self, idle_time: int, sample_freq: int, thresh_low: float, thresh_high: float,  queue: Queue ) -> None:
+    def __init__(
+        self,
+        idle_time: int,
+        sample_freq: int,
+        thresh_low: float,
+        thresh_high: float,
+        queue: Queue,
+    ) -> None:
         """
         Used to detect if we are in motion or not in motion
 
         Args:
-            idle_time(int): the amount of time in seconds that the device is idle before considered not in motion
+            idle_time(int): the amount of time in seconds that the device is idle before considered not in motion,
+                this is not an exact measure, but a rough estimate given to the SMAVariance
+                TODO: we may want to change the way this works
             sample_freq(float): frequency (HZ) to read from the IMU
             thresh_low(float): variance threshold of the IMU to consider "no motion"
             thresh_high(float): variance threshold of the IMU to consider "in motion"
@@ -30,7 +40,7 @@ class MotionDetector:
         self.thresh_high = thresh_high
         self.queue = queue
 
-        self.rvc = RollingVarianceCalculator(sample_freq * idle_time)
+        self.rvc = SMAVariance(sample_freq * idle_time)
 
         self.state = State.IDLE
         self.enabled_event = threading.Event()
@@ -40,45 +50,46 @@ class MotionDetector:
         self.mpu = adafruit_mpu6050.MPU6050(i2c)
 
         if not os.path.exists(IMU_OFFSET_FILE):
-            raise RuntimeError(f"No imu offsets at {IMU_OFFSET_FILE}, " \
-                                "please run the calibrate_imu.py script")
+            raise RuntimeError(
+                f"No imu offsets at {IMU_OFFSET_FILE}, "
+                "please run the calibrate_imu.py script"
+            )
 
         # get offsets
         self.imu_offsets_dict = {}
         with open(IMU_OFFSET_FILE, "r") as json_file:
             self.imu_offsets_dict = json.load(json_file)
 
-
-        # start running thread upon creation 
+        # start running thread upon creation
         # do last, once everything else is intialized
         self.run_t = threading.Thread(target=self.read_imu_and_check_motion)
         self.run_t.start()
-    
+
     def start(self):
-        '''
+        """
         Start monitoring for motion and motion state transitions.
         Resets state, msg queue, and RVC buffer to remove stale data and state
-        '''
+        """
         assert self.run_t is not None
 
         self.reset()
         self.enabled_event.set()
 
     def stop(self):
-        '''
-        temporarily stop the motion detector from 
+        """
+        temporarily stop the motion detector from
         reading the sensor values and updating its state
-        '''
+        """
         assert self.run_t is not None
-        
+
         self.enabled_event.clear()
 
     def reset(self):
-        '''
+        """
         clears all messages in message queue,
         sets state to IDLE,
         clears RVC buffer
-        '''
+        """
         assert not self.enabled_event.is_set()
 
         # clear all messages in queue
@@ -89,11 +100,11 @@ class MotionDetector:
         self.rvc.reset()
 
     def release(self):
-        '''
+        """
         Releases motiondector device.
-        Once this is called the motion detection instance 
+        Once this is called the motion detection instance
         can no longer be used.
-        '''
+        """
         # order matters
         self.stop_event.set()
         self.enabled_event.set()
@@ -103,10 +114,10 @@ class MotionDetector:
 
     def read_imu_and_check_motion(self):
         while not self.stop_event.is_set():
-            
+
             # wait until enabled
             self.enabled_event.wait()
-            
+
             loop_timer = Timer()
 
             # have to check again since could have been set
@@ -117,10 +128,10 @@ class MotionDetector:
             accel = np.asarray(self.mpu.acceleration)
             accel -= self.imu_offsets_dict["accel_bias"]
 
-            # using the X axis value of the accelerometer
-            self.rvc.update(accel[0])
+            # using the X,Y,Z axis values of the accelerometer
+            self.rvc.update(accel[0] + accel[1] + accel[2])
 
-            var = self.rvc.variance
+            var = self.rvc.get_var()
 
             match self.state:
                 case State.IDLE:
@@ -130,8 +141,10 @@ class MotionDetector:
                 case State.IN_MOTION:
                     if var != None and var < self.thresh_low:
                         self.state = State.IDLE
-                        self.queue.put(("MotionDetector", "idle_detected"))   
+                        self.queue.put(("MotionDetector", "idle_detected"))
 
-            sleep_time = max(0,(1.0 / self.sample_freq)-loop_timer.elapsed())
-            log_debug(f"Var: {var}, accel: {accel}, sleep_time: {sleep_time}, state: {self.state}")
+            sleep_time = max(0, (1.0 / self.sample_freq) - loop_timer.elapsed())
+            log_debug(
+                f"Var: {var}, accel: {accel}, sleep_time: {sleep_time}, state: {self.state}"
+            )
             time.sleep(sleep_time)
