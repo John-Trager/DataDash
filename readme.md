@@ -44,5 +44,17 @@ I have also experimented with a simple GPS module that I had but due to its long
 
 ## Dev Info
 
-- https://www.thequantizer.com/access-raspberry-pi-remotely/#gadget-mode-ssh-over-usb
-    - gadget mode for raspi so we can access from computer in the field when no networks are around
+- gadget mode for raspi so we can access from computer in the field when no networks are around
+    - https://www.thequantizer.com/access-raspberry-pi-remotely/#gadget-mode-ssh-over-usb
+- use v4l-utils to see usb cams compatible fps and resolutions
+    - https://stackoverflow.com/questions/52068277/change-frame-rate-in-opencv-3-4-2
+- see cpu temp of raspi with `vcgencmd measure_temp`
+
+## Wiring
+
+<i>insert wiring images...</i>
+
+### LCD Display
+- https://github.com/adafruit/Adafruit_CircuitPython_CharLCD
+- https://www.youtube.com/watch?v=cVdSc8VYVBM
+- https://learn.adafruit.com/drive-a-16x2-lcd-directly-with-a-raspberry-pi/wiring

@@ -67,6 +67,8 @@ lowest in motion 0.216
 idle 0.028-0.021
 signal to noise: 0.216/0.028 = 7.7
 
+NOTE: from real world testing I have decided to move the idle threshold to 0.05
+
 --- 
 
 WITH OLD RVC:
@@ -103,8 +105,4 @@ while in motion avg lowest was 0.09
 while stationary avg var between 0.007-0.01
 
 very smooth graph but certainly with a large delay
-
-TODO:
-- need to test shorter HZ to see if the variance is the same
-- also see how longer var windows change things (should theoretically just smooth it out more?)
 """

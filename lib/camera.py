@@ -23,10 +23,10 @@ class Camera:
         self.height = height
         self.fps = framerate
 
-        self.cap = cv.VideoCapture(video_p)
-        self.cap.set(cv.CAP_PROP_FPS, framerate)  # 30
+        self.cap = cv.VideoCapture(video_p, cv.CAP_V4L2)
         self.cap.set(cv.CAP_PROP_FRAME_WIDTH, width)  # 1280
         self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, height)  # 960
+        self.cap.set(cv.CAP_PROP_FPS, framerate)  # 30
 
         if not self.cap.isOpened():
             raise RuntimeError("Error: Unable to open Camera. " \
@@ -80,10 +80,13 @@ class Camera:
         log(f"final filepath and name: {data_file_path} (once recording has finished)")
 
         fourcc = cv.VideoWriter_fourcc(*"mp4v")
+        fps = self.cap.get(cv.CAP_PROP_FPS)
+        log(f"FPS set as: {fps}")
+
         out = cv.VideoWriter(
             temp_file_path,
             fourcc,
-            CAM_OFFSET * self.fps,
+            fps,
             (self.width, self.height),
         )
 

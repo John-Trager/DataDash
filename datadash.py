@@ -1,7 +1,7 @@
 """
 
 """
-
+from lib.lcd16x2 import LCD
 from lib.motiondetector import MotionDetector
 from lib.state import State
 from lib.utils import *
@@ -37,12 +37,15 @@ class DataDash:
         self.recorder = DataRecorder(data_dir, "tmp", 0, 30, 1280, 960)
         self.uploader = Uploader(data_dir, remote_dir)
 
+        self.lcd = LCD()
+
         # intialize last
         self.motion_detector = MotionDetector(30, 10, 0.05, 0.3, self.queue)
         log_debug("*** DataDash intialized ***")
 
     def idle(self) -> State:
         log("idle")
+        self.lcd.display(f"{self.state}")
 
         # start the motion detector
         self.motion_detector.start()
@@ -67,6 +70,7 @@ class DataDash:
 
     def in_motion(self) -> State:
         log("in motion")
+        self.lcd.display(f"{self.state}")
 
         self.recorder.start()
 
@@ -97,6 +101,7 @@ class DataDash:
 
     def wait_for_upload(self) -> State:
         log("wait for upload")
+        self.lcd.display(f"{self.state}")
 
         start = Timer()
 
@@ -117,6 +122,8 @@ class DataDash:
 
     def upload(self) -> State:
         log("upload state")
+        self.lcd.display(f"{self.state}")
+
         result = None
 
         try:
@@ -137,6 +144,9 @@ class DataDash:
         log("done")
         self.motion_detector.release()
         self.recorder.release()
+        # maybe do something different here
+        # so we can see that we are done
+        self.lcd.release() 
         log("released devices")
 
 

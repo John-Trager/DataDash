@@ -3,6 +3,7 @@ opencv-python
 pyserial
 pynmea2
 adafruit-circuitpython-mpu6050
+adafruit-circuitpython-charlcd
 adafruit-blinka
 tqdm
 numpy
