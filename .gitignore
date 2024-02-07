@@ -1,6 +1,7 @@
 tmp/**
 data/**
 env/**
+logs/**
 explorations/**
 __pycache__/**
 server.json

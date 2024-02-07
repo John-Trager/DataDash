@@ -1,0 +1,36 @@
+#!/bin/bash
+# runDataDash
+
+# make name of log file the data and time
+logfile="logs/datadash-$(date +'%Y-%m-%d-%H-%M-%S').log"
+user=$(whoami)
+
+if [ "$(uname)" == "Linux" ] && [ "$(uname -m)" == "armv7l" ]; then
+    cd /home/$user/DataDash
+    if [ ! -d logs ]; then
+        mkdir logs
+    fi
+    echo "[BASH]: Running on Raspberry Pi OS" >> $logfile 2>&1
+else
+    cd /Users/$user/Projects/DataDash
+    if [ ! -d logs ]; then
+        mkdir logs
+    fi
+    echo "[BASH]: Assume running on dev computer, run on pi for full functionality" >> $logfile 2>&1
+fi
+
+shutdown () {
+    echo "[BASH]: shuting down device" >> $logfile 2>&1
+    #sudo shutdown -h now
+}
+
+if [ ! -f datadash.py ]; then 
+	echo "[BASH]: Error: can't find datadash.py" >> $logfile 2>&1
+    shutdown
+fi
+
+# Run the script and log to logfile
+python3 datadash.py >> $logfile 2>&1
+
+shutdown
+
