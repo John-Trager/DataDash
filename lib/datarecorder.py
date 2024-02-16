@@ -5,6 +5,7 @@ Currently handles recording video data from a connected camera
 """
 from lib.utils import log_debug
 from lib.camera import Camera
+from lib.oakdcam import OakdCam
 from datetime import datetime
 from pathlib import Path
 
@@ -28,7 +29,8 @@ class DataRecorder:
             width(int): width resolution of the camera
             height(int): height resolution of the camera
         """
-        self.cam = Camera(video_p, framerate, width, height)
+        #self.cam = Camera(video_p, framerate, width, height)
+        self.cam = OakdCam()
         self.tmp_path = tmp_path
         self.data_path = data_path
 
@@ -49,7 +51,6 @@ class DataRecorder:
 
     def stop(self):
         '''Stops recording data'''
-        # update
         self.cam.stop_recording()
 
     def release(self):

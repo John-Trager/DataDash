@@ -1,12 +1,10 @@
-from depthai_sdk import OakCamera, RecordType
 from multiprocessing import Process, Event
 import shutil
-from utils import log_warn
-
+from lib.utils import log_warn
 
 class OakdCam:
     def __init__(self):
-        self.end_event = Event()
+        self.stop_event = Event()
 
     def start_recording(self, filename: str, temp_path: str, data_path: str):
         self.record_process = Process(
@@ -15,7 +13,7 @@ class OakdCam:
         self.record_process.start()
 
     def stop_recording(self):
-        self.end_event.set()
+        self.stop_event.set()
         if self.record_process is not None:
             self.record_process.join()
 
@@ -23,6 +21,9 @@ class OakdCam:
         pass
 
     def record(self, filename: str, temp_path: str, data_path: str):
+        # TODO: causes ~5 second delay for recording start
+        # crashes unless I put the import here
+        from depthai_sdk import OakCamera, RecordType
 
         filename += ".mp4"
         out_path = None
@@ -32,9 +33,10 @@ class OakdCam:
                 "color", resolution="1080P", fps=50, encode="H265"
             )
             handler = oak.record(color.out.encoded, temp_path, RecordType.VIDEO)
-            oak.visualize(color.out.camera, scale=2 / 3, fps=True)
+            # TODO: make this a parameter
+            #oak.visualize(color.out.camera, scale=2 / 3, fps=True)
             oak.start(blocking=False)
-            while not self.end_event.is_set() and oak.running():
+            while not self.stop_event.is_set() and oak.running():
                 oak.poll()
 
             out_path = handler.recorder.path
