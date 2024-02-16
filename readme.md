@@ -49,6 +49,8 @@ I have also experimented with a simple GPS module that I had but due to its long
 - use v4l-utils to see usb cams compatible fps and resolutions
     - https://stackoverflow.com/questions/52068277/change-frame-rate-in-opencv-3-4-2
 - see cpu temp of raspi with `vcgencmd measure_temp`
+- use `crontab -e` on the raspi to configure the runDataDash bash script to run on boot
+- to see ran cron tasks run `grep CRON /var/log/syslog`
 
 ## Wiring
 

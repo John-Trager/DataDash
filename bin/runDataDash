@@ -7,20 +7,21 @@ user=$(whoami)
 
 shutdown () {
     echo "[BASH]: shuting down device" >> $logfile 2>&1
-    #sudo shutdown -h now
+    sudo shutdown -h now
 }
-
-if [ ! -f datadash.py ]; then 
-	echo "[BASH]: Error: can't find datadash.py" >> $logfile 2>&1
-    shutdown
-fi
 
 if [ "$(uname)" == "Linux" ] && [ "$(uname -m)" == "aarch64" ]; then
     cd /home/$user/DataDash
     if [ ! -d logs ]; then
         mkdir logs
     fi
+    
     echo "[BASH]: Running on Raspberry Pi OS" >> $logfile 2>&1
+
+    if [ ! -f datadash.py ]; then 
+	    echo "[BASH]: Error: can't find datadash.py" >> $logfile 2>&1
+        shutdown
+    fi
 
     # Run the script and log to logfile
     python datadash.py >> $logfile 2>&1
