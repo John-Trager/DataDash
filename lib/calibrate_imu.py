@@ -1,4 +1,4 @@
-from utils import log, log_warn, get_string_time_now
+from utils import get_string_time_now
 from params import IMU_OFFSET_FILE
 import adafruit_mpu6050
 import board
@@ -6,11 +6,13 @@ import busio
 import json
 import time
 from tqdm import tqdm
+from loguru import logger
 
 GRAVITY_CONST = 9.80665
 
 if __name__ == '__main__':
-    log_warn("IMPORTANT! MAKE SURE DEVICE IS STILL AND " \
+
+    logger.warning("IMPORTANT! MAKE SURE DEVICE IS STILL AND " \
              "LEVEL DURING THE DURATION OF THIS SCRIPT")
     i2c = busio.I2C(board.SCL, board.SDA)
     mpu = adafruit_mpu6050.MPU6050(i2c)
@@ -19,7 +21,7 @@ if __name__ == '__main__':
     accel_bias = [0, 0, 0]
     num_readings = 1000 
 
-    log("Calculating IMU bias offsets")
+    logger.info("Calculating IMU bias offsets")
     for _ in tqdm(range(num_readings)):
         accel = mpu.acceleration
         gyro = mpu.gyro
@@ -43,9 +45,9 @@ if __name__ == '__main__':
     gyro_bias[1] /= num_readings
     gyro_bias[2] /= num_readings
 
-    log("Finished bias calculation!")
-    log(f"accel bias: {accel_bias}")
-    log(f"gyro bias: {gyro_bias}")
+    logger.info("Finished bias calculation!")
+    logger.info(f"accel bias: {accel_bias}")
+    logger.info(f"gyro bias: {gyro_bias}")
 
     params = {"sample_time": get_string_time_now(),
               "accel_bias": accel_bias, 
@@ -54,5 +56,5 @@ if __name__ == '__main__':
     with open(IMU_OFFSET_FILE, "w") as json_file:
         json.dump(params, json_file, indent=4)
 
-    log("Saved bias offsets to json!")
+    logger.info("Saved bias offsets to json!")
 

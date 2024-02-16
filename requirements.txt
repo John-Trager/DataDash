@@ -9,3 +9,4 @@ numpy
 depthai-sdk
 opencv-python
 av
+loguru

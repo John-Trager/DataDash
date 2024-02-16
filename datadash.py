@@ -8,7 +8,7 @@ from lib.utils import *
 from lib.datarecorder import DataRecorder
 from lib.uploader import Uploader
 from queue import Empty, Queue
-
+from loguru import logger
 
 class DataDash:
 
@@ -41,10 +41,10 @@ class DataDash:
 
         # intialize last
         self.motion_detector = MotionDetector(30, 10, 0.05, 0.3, self.queue)
-        log_debug("*** DataDash intialized ***")
+        logger.debug("*** DataDash intialized ***")
 
     def idle(self) -> State:
-        log("idle")
+        logger.info("idle")
         self.lcd.display(f"{self.state}")
 
         # start the motion detector
@@ -54,22 +54,22 @@ class DataDash:
         # from detector or timeout
         try:
             sender, message = self.queue.get(timeout=self.idle_timeout)
-            log(f"recv message: {sender}, {message}")
+            logger.info(f"recv message: {sender}, {message}")
         except Empty:
-            log("timeout occurred")
+            logger.info("timeout occurred")
             self.state = State.DONE
             return self.state
 
         if message == "motion_detected":
             self.state = State.IN_MOTION
         else:
-            log_error(f"Invalid message: {message}")
+            logger.error(f"Invalid message: {message}")
             self.state = State.DONE
 
         return self.state
 
     def in_motion(self) -> State:
-        log("in motion")
+        logger.info("in motion")
         self.lcd.display(f"{self.state}")
 
         self.recorder.start()
@@ -80,9 +80,9 @@ class DataDash:
         # because if the sensor fails we will record forever
         try:
             sender, message = self.queue.get()
-            log(f"recv message: {sender}, {message}")
+            logger.info(f"recv message: {sender}, {message}")
         except Empty:
-            log("timeout occurred")
+            logger.info("timeout occurred")
             self.recorder.stop()
             self.state = State.DONE
             return
@@ -90,7 +90,7 @@ class DataDash:
         if message == "idle_detected":
             self.state = State.WAIT_FOR_UPLOAD
         else:
-            log_error(f"Invalid message: {message}")
+            logger.error(f"Invalid message: {message}")
             self.state = State.DONE
 
         # on in_motion exit
@@ -100,7 +100,7 @@ class DataDash:
         return self.state
 
     def wait_for_upload(self) -> State:
-        log("wait for upload")
+        logger.info("wait for upload")
         self.lcd.display(f"{self.state}")
 
         start = Timer()
@@ -116,12 +116,12 @@ class DataDash:
             time.sleep(1)
 
         self.state = State.IDLE
-        log_warn("failed to connect to server, going to IDLE")
+        logger.warning("failed to connect to server, going to IDLE")
 
         return self.state
 
     def upload(self) -> State:
-        log("upload state")
+        logger.info("upload state")
         self.lcd.display(f"{self.state}")
 
         result = None
@@ -129,7 +129,7 @@ class DataDash:
         try:
             result = self.uploader.upload()
         except Exception as e:
-            log_error(e)
+            logger.error(e)
             self.state = State.DONE
             return self.state
 
@@ -141,16 +141,17 @@ class DataDash:
         return self.state
 
     def done(self) -> None:
-        log("done")
+        logger.info("done")
         self.motion_detector.release()
         self.recorder.release()
         # maybe do something different here
         # so we can see that we are done
         self.lcd.release() 
-        log("released devices")
+        logger.info("released devices")
 
 
 if __name__ == "__main__":
+    setup_logger()
     dd = DataDash()
 
     # note that some of the function calls are
@@ -169,7 +170,7 @@ if __name__ == "__main__":
                 dd.done()
                 break
             case _:
-                log_error(f"Invalid state: {dd.state}")
+                logger.error(f"Invalid state: {dd.state}")
                 break
 
-    log("main program end")
+    logger.info("main program end")

@@ -1,4 +1,4 @@
-from lib.utils import SMAVariance, Timer, log_debug
+from lib.utils import SMAVariance, Timer
 from lib.params import IMU_OFFSET_FILE
 from lib.state import State
 import adafruit_mpu6050
@@ -10,6 +10,7 @@ import json
 from queue import Queue
 import threading
 import time
+from loguru import logger
 
 
 class MotionDetector:
@@ -144,7 +145,7 @@ class MotionDetector:
                         self.queue.put(("MotionDetector", "idle_detected"))
 
             sleep_time = max(0, (1.0 / self.sample_freq) - loop_timer.elapsed())
-            log_debug(
+            logger.debug(
                 f"Var: {var}, accel: {accel}, sleep_time: {sleep_time}, state: {self.state}"
             )
             time.sleep(sleep_time)

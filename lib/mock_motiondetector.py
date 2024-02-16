@@ -1,8 +1,8 @@
 from lib.state import State
-from lib.utils import log, log_error
 import threading
 import time
 from queue import Queue
+from loguru import logger
 
 class MotionDetectorDummy:
     def __init__(self, queue: Queue) -> None:
@@ -44,19 +44,19 @@ class MotionDetectorDummy:
                 match self.state:
                     case State.IDLE:
                         # print thread id
-                        log(
+                        logger.info(
                             f"dummy sent motion detected; {threading.current_thread().ident}"
                         )
                         self.queue.put(("MotionDetection", "motion_detected"))
                         self.state = State.IN_MOTION
                     case State.IN_MOTION:
-                        log(
+                        logger.info(
                             f"dummy sent idle detected; {threading.current_thread().ident}"
                         )
                         self.queue.put(("MotionDetection", "idle_detected"))
                         self.state = State.IDLE
                     case _:
-                        log_error(f"Invalid state: {self.state}")
+                        logger.error(f"Invalid state: {self.state}")
                         break
 
             time.sleep(10)

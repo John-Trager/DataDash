@@ -2,11 +2,13 @@ from lib.params import DEBUG
 from collections import deque
 from datetime import datetime
 from math import sqrt
+from loguru import logger
 import numpy as np
 import json
 import os
 import paramiko
 import time
+import sys
 
 SERVER_HOST = "server1.local"
 
@@ -29,7 +31,7 @@ def get_server_conn(config_path: str = "config/server.json"):
 
     # check if config_path exists
     if not os.path.exists(config_path):
-        log_error(f"Config file not found at {config_path}")
+        logger.error(f"Config file not found at {config_path}")
         exit(1)
 
     config = {}
@@ -41,7 +43,7 @@ def get_server_conn(config_path: str = "config/server.json"):
     client.connect(
         config["hostname"], config["port"], config["username"], config["password"]
     )
-    log("Connected to server")
+    logger.info("Connected to server")
     return client
 
 
@@ -49,40 +51,15 @@ def get_server_conn(config_path: str = "config/server.json"):
 def get_string_time_now() -> str:
     """Returns the current time in string format"""
     now = datetime.now()
-    return now.strftime("%Y-%m-%d %H:%M:%S")
+    return now.strftime("%Y-%m-%d_%H:%M:%S")
 
-
-def log(*args):
-    """Logs a message to the console with timestamp"""
-    # color the timestamp
-    timestamp = get_string_time_now()
-    timestamp = f"\033[92m[{timestamp}]\033[0m"
-    print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
-
-
-def log_warn(*args):
-    """Logs a warning message to the console with timestamp"""
-    timestamp = get_string_time_now()
-    timestamp = f"\033[33m[{timestamp}] Warning:\033[0m"
-    print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
-
-
-def log_error(*args):
-    """Logs an error message to the console with timestamp"""
-    # color the timestamp red
-    timestamp = get_string_time_now()
-    timestamp = f"\033[91m[{timestamp}] Error:\033[0m"
-    print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
-
-
-def log_debug(*args):
-    """Logs a debug message to the console with timestamp"""
-    # color the timestamp blue
+def setup_logger():
+    # Define log level based on debug mode
+    logger.remove()
     if DEBUG:
-        timestamp = get_string_time_now()
-        timestamp = f"\033[94m[{timestamp}] Debug:\033[0m"
-        print(f"{timestamp} " + " ".join(map(str, args)), flush=True)
-
+        logger.add(sys.stderr, level="DEBUG")
+    else:
+        logger.add(sys.stderr, level="INFO")
 
 class Timer:
     """

@@ -3,6 +3,7 @@ simple SFTP data uploader
 '''
 from lib.utils import *
 from pathlib import Path
+from loguru import logger
 
 CACHE_NAME = 'uploads.json'
 
@@ -14,7 +15,7 @@ class Uploader:
         self.data_dir = data_dir
         self.remote_dir = remote_dir
         self.cache = self.init_upload_cache()
-        log_debug("Uploader intialized")
+        logger.debug("Uploader intialized")
 
 
     def upload(self) -> bool:
@@ -37,14 +38,14 @@ class Uploader:
                 try:
                     local_path = f"{self.data_dir}/{file}"
                     remote_path = f"{self.remote_dir}/{file}"
-                    log(f"Beginning transfer of {local_path} to server:{remote_path}")
+                    logger.info(f"Beginning transfer of {local_path} to server:{remote_path}")
                     sftp.put(local_path, remote_path)
                     self.cache['uploads'][file] = {'upload-time': get_string_time_now()}
-                    log(f"File {local_path} transferred to {remote_path}")
+                    logger.info(f"File {local_path} transferred to {remote_path}")
                 except Exception as e:
                     # we treat this as non-fatal and retry later
                     # when coming back to upload state
-                    log_warn(f"error transferring file {file}: {e}")
+                    logger.warning(f"error transferring file {file}: {e}")
                     result = False
                     continue
 

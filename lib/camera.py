@@ -6,6 +6,7 @@ from lib.params import CAM_OFFSET
 from lib.utils import *
 import cv2 as cv
 import threading
+from loguru import logger
 import shutil
 import os
 
@@ -35,7 +36,7 @@ class Camera:
         self.end_flag = threading.Event()
         self.record_thread = None
 
-        log_debug("Camera intialized")
+        logger.debug("Camera intialized")
 
 
     def release(self) -> None:
@@ -63,7 +64,7 @@ class Camera:
     def recording(
         self, filename: str, temp_path: str, data_path: str, end_flag: threading.Event
     ) -> None:
-        log("starting recording")
+        logger.info("starting recording")
 
         # TODO: consider having a max time limit for a recording
         # where once it hits the limit it creates a new file
@@ -76,12 +77,12 @@ class Camera:
         # move file to this path once recording is completed
         data_file_path = os.path.join(data_path, filename)
 
-        log(f"temp filepath and name: {temp_file_path}")
-        log(f"final filepath and name: {data_file_path} (once recording has finished)")
+        logger.info(f"temp filepath and name: {temp_file_path}")
+        logger.info(f"final filepath and name: {data_file_path} (once recording has finished)")
 
         fourcc = cv.VideoWriter_fourcc(*"mp4v")
         fps = self.cap.get(cv.CAP_PROP_FPS)
-        log(f"FPS set as: {fps}")
+        logger.info(f"FPS set as: {fps}")
 
         out = cv.VideoWriter(
             temp_file_path,
@@ -91,7 +92,7 @@ class Camera:
         )
 
         if not self.cap.isOpened():
-            log_error("Error: Cannot open camera!")
+            logger.error("Error: Cannot open camera!")
             return
 
         while not end_flag.is_set():
@@ -99,13 +100,13 @@ class Camera:
             ret, frame = self.cap.read()
             # if frame is read correctly ret is True
             if not ret:
-                log_error("Can't receive frame (stream end?). Exiting ...")
+                logger.error("Can't receive frame (stream end?). Exiting ...")
                 break
 
             # write the frame
             out.write(frame)
 
-        log("ending recording")
+        logger.info("ending recording")
 
         out.release()
 

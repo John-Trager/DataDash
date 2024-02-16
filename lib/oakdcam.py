@@ -1,6 +1,6 @@
 from multiprocessing import Process, Event
 import shutil
-from lib.utils import log_warn
+from loguru import logger
 
 class OakdCam:
     def __init__(self):
@@ -42,7 +42,7 @@ class OakdCam:
             out_path = handler.recorder.path
 
         if out_path is None:
-            log_warn(
+            logger.info(
                 "No output file path detected from oakd, Recording may have failed"
             )
             return
